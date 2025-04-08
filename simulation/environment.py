@@ -6,8 +6,10 @@ class Environment:
     def __init__(self, width=1268, height=720):
         self.width = width
         self.height = height
-        self.agents = [Agent(width / 2, height / 2,
-                             num_sensors=16, sensor_range=1000)]
+        self.agents = []
+        for i in range(20):
+            self.agents.append(Agent(width / 2, height / 2,
+                                     num_sensors=16, sensor_range=250))
         self.staticObstacles = [
             StaticObstacle((300, 250, 200, 40)),
             StaticObstacle((200, 400, 100, 100)),
