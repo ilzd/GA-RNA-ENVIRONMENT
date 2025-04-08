@@ -36,6 +36,6 @@ class Agent:
             x = self.x + dx * i
             y = self.y + dy * i
             point = (int(x), int(y))
-            if any(ob.rect.collidepoint(point) for ob in obstacles):
+            if any(ob.collides_with_point(point) for ob in obstacles):
                 return i
         return self.sensor_range
