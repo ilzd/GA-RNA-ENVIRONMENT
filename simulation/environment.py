@@ -6,8 +6,8 @@ class Environment:
     def __init__(self, width=1268, height=720):
         self.width = width
         self.height = height
-        self.agent = Agent(width / 2, height / 2,
-                           num_sensors=16, sensor_range=1000)
+        self.agents = [Agent(width / 2, height / 2,
+                             num_sensors=16, sensor_range=1000)]
         self.staticObstacles = [
             StaticObstacle((300, 250, 200, 40)),
             StaticObstacle((200, 400, 100, 100)),
@@ -19,5 +19,7 @@ class Environment:
         ]
 
     def update(self):
+        for agent in self.agents:
+            agent.update(self.staticObstacles + self.movingObstacles)
         for ob in self.movingObstacles:
             ob.update(self.width, self.height)

@@ -14,11 +14,9 @@ class Game:
         self.clock = pygame.time.Clock()
 
     def update(self):
-
         self.screen.fill(BG_COLOR)
-        self.environment.agent.cast_sensors(self.environment.staticObstacles +
-                                            self.environment.movingObstacles, self.screen)
-        self.environment.agent.draw(self.screen)
+        for agent in self.environment.agents:
+            agent.draw(self.screen)
 
         for ob in self.environment.staticObstacles:
             ob.draw(self.screen)

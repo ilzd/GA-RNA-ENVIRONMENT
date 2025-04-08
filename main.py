@@ -7,7 +7,7 @@ random.seed(0)
 if __name__ == "__main__":
     env = Environment()
     game = Game(env)
-    game.run()
+    game.run(True)
 
 # net = Network([2, 5, 4], activation_fn=activation.sigmoid)
 
