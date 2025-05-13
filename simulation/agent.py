@@ -4,21 +4,23 @@ from ann import Network, activation
 
 SENSOR_COLOR = (100, 200, 250)
 AGENT_COLOR = (50, 200, 50)
-BASE_SPEED = 5
+AGENT_COLOR_DEAD = (200, 50, 50)
+BASE_SPEED = 10
 
 
 class Agent:
-    def __init__(self, x, y, num_sensors=8, sensor_range=150):
+    def __init__(self, x, y, num_sensors=8, sensor_range=150, network: Network = None, target=[0, 0]):
         self.x = x
         self.y = y
-        self.radius = 25
+        self.radius = 20
         self.num_sensors = num_sensors
         self.sensor_range = sensor_range
         self.sensor_angles = []
         self.init_angles()
         self.readings = []
-        self.network = Network(
-            [self.num_sensors, 10, 10, 3], activation_fn=activation.sigmoid)
+        self.network = network
+        self.target = target
+        self.dead = False
 
     def init_angles(self):
         for i in range(self.num_sensors):
@@ -27,8 +29,13 @@ class Agent:
                 [angle, math.cos(angle),  math.sin(angle)])
 
     def update(self, obstacles):
+        self.check_dead(obstacles)
+        
+        if(self.dead):
+            return
+        
         self.readings = self.cast_sensors(obstacles)
-        output = self.network.forward(self.readings)
+        output = self.network.forward(self.readings + self.target)
         self._move(output)
 
     def _move(self, output):
@@ -39,7 +46,7 @@ class Agent:
         self.y += dy * speed
 
     def draw(self, surface):
-        if self.readings:
+        if self.readings and not self.dead:
             for i in range(self.num_sensors):
                 angle = self.sensor_angles[i]
                 reading = self.readings[i]
@@ -50,7 +57,7 @@ class Agent:
                 pygame.draw.line(surface, SENSOR_COLOR, (self.x, self.y),
                                  (end_x, end_y), 1)
 
-        pygame.draw.circle(surface, AGENT_COLOR, (self.x, self.y), self.radius)
+        pygame.draw.circle(surface, AGENT_COLOR if self.dead == False else AGENT_COLOR_DEAD, (self.x, self.y), self.radius)
 
     def cast_sensors(self, obstacles):
         readings = []
@@ -70,3 +77,14 @@ class Agent:
             if any(ob.collides_with_point(point) for ob in obstacles):
                 return i
         return self.sensor_range
+    
+    def check_dead(self, obstacles):
+        if self.dead:
+            return
+        for ob in obstacles:
+            if ob.collides_with_point((self.x, self.y), self.radius):
+                self.dead = True
+                break
+        
+
+def clamp(n, smallest, largest): return max(smallest, min(n, largest))
