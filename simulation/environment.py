@@ -10,8 +10,8 @@ class Environment:
         self.obstacles = obstacles
         self.target = target
 
-    def update(self):
+    def update(self, dt):
         for agent in self.agents:
-            agent.update(self.obstacles)
+            agent.update(self.obstacles, dt)
         for ob in self.obstacles:
-            ob.update(self.width, self.height)
+            ob.update(self.width, self.height, dt)

@@ -15,6 +15,7 @@ class Game:
             (environment.width, environment.height))
         pygame.display.set_caption("Simulation")
         self.clock = pygame.time.Clock()
+        self.dt = 0
 
     def update(self):
         self.screen.fill(BG_COLOR)
@@ -29,7 +30,7 @@ class Game:
             ob.draw(self.screen)
 
         pygame.display.flip()
-        self.clock.tick(60)
+        self.dt = self.clock.tick(60) / 1000.0
 
     def run(self, update_env=False):
         running = True
@@ -38,7 +39,7 @@ class Game:
                 if event.type == pygame.QUIT:
                     running = False
             if update_env:
-                self.environment.update()
+                self.environment.update(self.dt)
             self.update()
 
         pygame.quit()

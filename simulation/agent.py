@@ -1,11 +1,11 @@
 import pygame
 import math
-from ann import Network, activation
+from ann import Network
 
 SENSOR_COLOR = (100, 200, 250)
 AGENT_COLOR = (50, 200, 50)
 AGENT_COLOR_DEAD = (200, 50, 50)
-BASE_SPEED = 10
+BASE_SPEED = 300
 
 
 class Agent:
@@ -21,6 +21,9 @@ class Agent:
         self.network = network
         self.target = target
         self.dead = False
+        self.totalTime = 0
+        self.totalDistance = 0
+        self.finalDistance = 0
 
     def init_angles(self):
         for i in range(self.num_sensors):
@@ -28,22 +31,24 @@ class Agent:
             self.sensor_angles.append(
                 [angle, math.cos(angle),  math.sin(angle)])
 
-    def update(self, obstacles):
+    def update(self, obstacles, dt):
         self.check_dead(obstacles)
         
         if(self.dead):
             return
         
+        self.totalTime += dt
+        
         self.readings = self.cast_sensors(obstacles)
         output = self.network.forward(self.readings + self.target)
-        self._move(output)
+        self._move(output, dt)
 
-    def _move(self, output):
-        dx = output[0] - 0.5
-        dy = output[1] - 0.5
-        speed = output[2] * BASE_SPEED
+    def _move(self, output, dt):
+        dx, dy = normalize((output[0] - 0.5, output[1] - 0.5))
+        speed = output[2] * BASE_SPEED * dt
         self.x += dx * speed
         self.y += dy * speed
+        self.totalDistance += speed
 
     def draw(self, surface):
         if self.readings and not self.dead:
@@ -88,3 +93,8 @@ class Agent:
         
 
 def clamp(n, smallest, largest): return max(smallest, min(n, largest))
+def normalize(v):
+    length = math.hypot(v[0], v[1])
+    if length == 0:
+        return (0, 0)
+    return (v[0] / length, v[1] / length)

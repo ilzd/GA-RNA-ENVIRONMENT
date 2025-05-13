@@ -18,9 +18,9 @@ if __name__ == "__main__":
         Obstacle(700, 400, radius=60),
         Obstacle(250, 700, radius=60),
         Obstacle(1200, 250, radius=60),
-        Obstacle(500, 500, radius=40, speed=2),
-        Obstacle(800, 300, radius=40, speed=1.5),
-        Obstacle(1200, 600, radius=40, speed=2.25)
+        Obstacle(500, 500, radius=40, speed=200),
+        Obstacle(800, 300, radius=40, speed=150),
+        Obstacle(1200, 600, radius=40, speed=250)
     ]
 
     env = Environment(agents=agents, obstacles=obstacles, target=target)

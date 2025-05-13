@@ -18,12 +18,12 @@ class Obstacle:
         self.dx = math.cos(self.angle) * speed
         self.dy = math.sin(self.angle) * speed
 
-    def update(self, screen_width, screen_height):
+    def update(self, screen_width, screen_height, dt):
         if (self.speed == 0):
             return
 
-        self.x += self.dx
-        self.y += self.dy
+        self.x += self.dx * dt
+        self.y += self.dy * dt
 
         if self.x - self.radius <= 0 or self.x + self.radius >= screen_width:
             self.dx *= -1
