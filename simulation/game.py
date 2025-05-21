@@ -20,8 +20,8 @@ class Game:
     def update(self):
         self.screen.fill(BG_COLOR)
 
-        tX, tY = self.environment.target
-        pygame.draw.circle(self.screen, TARGET_COLOR, (tX, tY), 15)
+        tX, tY, tR = self.environment.target
+        pygame.draw.circle(self.screen, TARGET_COLOR, (tX, tY), tR)
 
         for agent in self.environment.agents:
             agent.draw(self.screen)
