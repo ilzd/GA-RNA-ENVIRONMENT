@@ -17,13 +17,6 @@ def one_point_crossover(w1, b1, w2, b2):
         child_flat = np.concatenate([flat1[:point], flat2[point:]])
         child_weights.append(child_flat.reshape(shape))
         
-        # print('point:', point)
-        # print('father')
-        # print(flat1)
-        # print('mother')
-        # print(flat2)
-        # print('child')
-        # print(child_flat)
 
     for b_layer1, b_layer2 in zip(b1, b2):
         shape = b_layer1.shape

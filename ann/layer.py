@@ -12,8 +12,12 @@ class Layer:
         self.weights = weights if weights is not None else np.array([
             [random.uniform(-1, 1) for _ in range(input_size)] for _ in range(output_size)
         ])
+        # print('weights: ')
+        # print(self.weights)
         self.biases = biases if biases is not None else np.array([
             random.uniform(-1, 1) for _ in range(output_size)])
+        # print('biases: ')
+        # print(self.biases)
 
     def forward(self, inputs):
         outputs = []

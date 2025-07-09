@@ -15,24 +15,35 @@ class Obstacle:
         self.speed = speed
         self.angle = angle if angle is not None else random.uniform(
             0, 2 * math.pi)
-        self.dx = math.cos(self.angle) * speed
-        self.dy = math.sin(self.angle) * speed
-
+        self.dx = math.cos(self.angle)
+        self.dy = math.sin(self.angle)
+        
     def update(self, screen_width, screen_height, dt):
         if (self.speed == 0):
             return
 
-        self.x += self.dx * dt
-        self.y += self.dy * dt
+        self.x += self.dx * dt * self.speed
+        self.y += self.dy * dt * self.speed
+        margin = 200
 
-        if self.x - self.radius <= 0 or self.x + self.radius >= screen_width:
+        if self.x - self.radius <= -margin:
+            self.x = self.radius - margin
             self.dx *= -1
-        if self.y - self.radius <= 0 or self.y + self.radius >= screen_height:
+        if self.x + self.radius >= screen_width + margin:
+            self.x = screen_width - self.radius + margin
+            self.dx *= -1
+            
+        if self.y - self.radius <= -margin:
+            self.y = self.radius - margin
+            self.dy *= -1
+        if self.y + self.radius >= screen_height + margin:
+            self.y = screen_height - self.radius + margin
             self.dy *= -1
 
     def draw(self, surface):
         pygame.draw.circle(surface, STATIC_OBSTACLE_COLOR if self.speed ==
                            0 else MOVING_OBSTACLE_COLOR, (self.x, self.y), self.radius)
+        pygame.draw.circle(surface, (0, 0, 0), (self.x, self.y), self.radius, width=1)
 
     def collides_with_point(self, point, radius = 0):
         px, py = point

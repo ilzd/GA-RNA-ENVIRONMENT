@@ -6,12 +6,11 @@ import copy
 SENSOR_COLOR = (100, 200, 250)
 AGENT_COLOR = (50, 200, 50)
 AGENT_COLOR_DEAD = (200, 50, 50)
-AGENT_COLOR_WIN = (0, 200, 200)
 BASE_SPEED = 300
 
 
 class Agent:
-    def __init__(self, x, y, num_sensors=8, sensor_range=150, network: Network = None, target=[0, 0, 20], bounds=[0, 0]):
+    def __init__(self, x, y, num_sensors=8, sensor_range=150, network: Network = None, bounds=[0, 0]):
         self.x = x
         self.y = y
         self.radius = 20
@@ -21,12 +20,8 @@ class Agent:
         self.init_angles()
         self.readings = []
         self.network = network
-        self.target = target
         self.dead = False
-        self.win = False
         self.total_time = 0
-        self.total_distance = 0
-        self.final_distance = 0
         self.bounds = bounds
 
     def init_angles(self):
@@ -37,25 +32,34 @@ class Agent:
 
     def update(self, obstacles, dt):
         self.check_dead(obstacles)
-        self.check_win()
-        if (self.dead or self.win):
+        if (self.dead):
             return
 
         self.total_time += dt
 
         self.readings = self.cast_sensors(obstacles)
-        output = self.network.forward(self.readings + self.target)
+        output = self.network.forward(self.readings)
         self._move(output, dt)
 
     def _move(self, output, dt):
-        dx, dy = normalize((output[0] - 0.5, output[1] - 0.5))
-        speed = output[2] * BASE_SPEED * dt
+        dx = 0
+        dy = 0
+        
+        if(output[0] > 0.5):
+            dx += 1
+        if(output[1] > 0.5):
+            dx += -1
+        if(output[2] > 0.5):
+            dy += 1
+        if(output[3] > 0.5):
+            dy += -1
+
+        speed = BASE_SPEED * dt
         self.x += dx * speed
         self.y += dy * speed
-        self.total_distance += BASE_SPEED * dt
 
     def draw(self, surface):
-        if self.readings and not (self.dead or self.win):
+        if self.readings and not (self.dead):
             for i in range(self.num_sensors):
                 angle = self.sensor_angles[i]
                 reading = self.readings[i]
@@ -66,7 +70,8 @@ class Agent:
                 pygame.draw.line(surface, SENSOR_COLOR, (self.x, self.y),
                                  (end_x, end_y), 1)
         pygame.draw.circle(surface, AGENT_COLOR_DEAD if self.dead ==
-                           True else AGENT_COLOR if self.win == False else AGENT_COLOR_WIN, (self.x, self.y), self.radius)
+                           True else AGENT_COLOR, (self.x, self.y), self.radius)
+        pygame.draw.circle(surface, (0, 0, 0), (self.x, self.y), self.radius, width=1)
 
     def cast_sensors(self, obstacles):
         readings = []
@@ -78,7 +83,7 @@ class Agent:
         return readings
 
     def _cast_single_ray(self, dx, dy, obstacles):
-        step_size = 5
+        step_size = 10
         for i in range(0, self.sensor_range, step_size):
             x = self.x + dx * i
             y = self.y + dy * i
@@ -90,8 +95,6 @@ class Agent:
         return self.sensor_range
 
     def check_dead(self, obstacles):
-        if self.win:
-            return
         if self.dead:
             return
         for ob in obstacles:
@@ -101,23 +104,6 @@ class Agent:
         if self.x < 0 or self.y < 0 or self.x > self.bounds[0] or self.y > self.bounds[1]:
             self.dead = True
             return
-
-    def check_win(self):
-        if math.hypot(self.x - self.target[0], self.y - self.target[1]) < (self.radius + self.target[2]):
-            self.win = True
-            return
-
-    def finish(self, max_duration):
-        max_possible_distance = BASE_SPEED * max_duration
-
-        self.final_distance = clamp(math.hypot(
-            self.x - self.target[0], self.y - self.target[1]), 0, max_possible_distance) / max_possible_distance
-
-        self.total_time = clamp(
-            self.total_time, 0, max_duration) / max_duration
-
-        self.total_distance = clamp(
-            self.total_distance, 0, max_possible_distance) / max_possible_distance
 
 
 def clamp(n, smallest, largest): return max(smallest, min(n, largest))
